@@ -5,9 +5,11 @@ import {
   addComment,
   applyPost,
   createPost,
-  likePost,
+  dislikePostFromSocket,
+  likePostFromSocket,
   loadMorePosts,
   loadPosts,
+  reactPost,
   toggleExpandedPost
 } from './actions.js';
 
@@ -47,7 +49,12 @@ const { reducer, actions, name } = createSlice({
       state.expandedPost = post;
     });
     builder.addMatcher(
-      isAnyOf(likePost.fulfilled, addComment.fulfilled),
+      isAnyOf(
+        reactPost.fulfilled,
+        addComment.fulfilled,
+        likePostFromSocket.fulfilled,
+        dislikePostFromSocket.fulfilled
+      ),
       (state, action) => {
         const { posts, expandedPost } = action.payload;
         state.posts = posts;

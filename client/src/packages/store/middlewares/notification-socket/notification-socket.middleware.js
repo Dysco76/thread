@@ -18,14 +18,36 @@ const notificationSocketInstance = socket.getInstance(
 );
 
 const notificationSocket = ({ dispatch }) => {
-  notificationSocketInstance.on(NotificationSocketEvent.LIKE_POST, () => {
-    dispatch(
-      appActionCreator.notify({
-        type: NotificationType.INFO,
-        message: NotificationMessage.LIKED_POST
-      })
-    );
-  });
+  notificationSocketInstance.on(
+    NotificationSocketEvent.LIKE_POST,
+    ({ updatedPost, isReactionAdded }) => {
+      dispatch(threadActionCreator.likePostFromSocket(updatedPost));
+      if (isReactionAdded) {
+        dispatch(
+          appActionCreator.notify({
+            type: NotificationType.INFO,
+            message: NotificationMessage.LIKED_POST
+          })
+        );
+      }
+    }
+  );
+
+  notificationSocketInstance.on(
+    NotificationSocketEvent.DISLIKE_POST,
+    ({ updatedPost, isReactionAdded }) => {
+      dispatch(threadActionCreator.dislikePostFromSocket(updatedPost));
+      if (isReactionAdded) {
+        dispatch(
+          appActionCreator.notify({
+            type: NotificationType.INFO,
+            message: NotificationMessage.DISLIKED_POST
+          })
+        );
+      }
+    }
+  );
+
   notificationSocketInstance.on(NotificationSocketEvent.NEW_POST, post => {
     dispatch(threadActionCreator.applyPost(post));
   });

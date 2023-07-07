@@ -70,25 +70,60 @@ const toggleExpandedPost = createAsyncThunk(
   }
 );
 
-const likePost = createAsyncThunk(
+const reactPost = createAsyncThunk(
   ActionType.REACT,
-  async (postId, { getState, extra: { services } }) => {
-    const { id } = await services.post.likePost(postId);
-    const diff = id ? 1 : -1; // if ID exists then the post was liked, otherwise - like was removed
-
-    const mapLikes = post => ({
+  async ({ postId, reaction }, { getState, extra: { services } }) => {
+    const response = await services.post[reaction](postId);
+    const mapReactions = post => ({
       ...post,
-      likeCount: Number(post.likeCount) + diff // diff is taken from the current closure
+      dislikeCount: Number(response.dislikeCount),
+      likeCount: Number(response.likeCount)
     });
 
     const {
       posts: { posts, expandedPost }
     } = getState();
     const updated = posts.map(post =>
-      post.id === postId ? mapLikes(post) : post
+      post.id === postId ? mapReactions(post) : post
     );
     const updatedExpandedPost =
-      expandedPost?.id === postId ? mapLikes(expandedPost) : undefined;
+      expandedPost?.id === postId ? mapReactions(expandedPost) : undefined;
+
+    return { posts: updated, expandedPost: updatedExpandedPost };
+  }
+);
+
+const likePostFromSocket = createAsyncThunk(
+  ActionType.LIKE,
+  async ({ id: postId, likeCount, dislikeCount }, { getState }) => {
+    const {
+      posts: { posts, expandedPost }
+    } = getState();
+    const updated = posts.map(post =>
+      post.id === postId ? { ...post, likeCount, dislikeCount } : post
+    );
+    const updatedExpandedPost =
+      expandedPost?.id === postId
+        ? { ...expandedPost, likeCount, dislikeCount }
+        : undefined;
+
+    return { posts: updated, expandedPost: updatedExpandedPost };
+  }
+);
+
+const dislikePostFromSocket = createAsyncThunk(
+  ActionType.DISLIKE,
+  async ({ id: postId, dislikeCount, likeCount }, { getState }) => {
+    const {
+      posts: { posts, expandedPost }
+    } = getState();
+    const updated = posts.map(post =>
+      post.id === postId ? { ...post, dislikeCount, likeCount } : post
+    );
+    const updatedExpandedPost =
+      expandedPost?.id === postId
+        ? { ...expandedPost, dislikeCount, likeCount }
+        : undefined;
 
     return { posts: updated, expandedPost: updatedExpandedPost };
   }
@@ -126,8 +161,10 @@ export {
   addComment,
   applyPost,
   createPost,
-  likePost,
+  dislikePostFromSocket,
+  likePostFromSocket,
   loadMorePosts,
   loadPosts,
+  reactPost,
   toggleExpandedPost
 };

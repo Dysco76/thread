@@ -42,6 +42,18 @@ class PostRepository extends AbstractRepository {
       .withGraphFetched('[comments.user.image, user.image, image]')
       .first();
   }
+
+  getPostReactionsById(postId) {
+    return this.model
+      .query()
+      .select(
+        'posts.*',
+        getReactionsQuery(this.model)(true),
+        getReactionsQuery(this.model)(false)
+      )
+      .where({ id: postId })
+      .first();
+  }
 }
 
 export { PostRepository };
