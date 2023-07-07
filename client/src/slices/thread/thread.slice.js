@@ -52,8 +52,8 @@ const { reducer, actions, name } = createSlice({
       isAnyOf(
         reactPost.fulfilled,
         addComment.fulfilled,
-        likePostFromSocket,
-        dislikePostFromSocket
+        likePostFromSocket.fulfilled,
+        dislikePostFromSocket.fulfilled
       ),
       (state, action) => {
         const { posts, expandedPost } = action.payload;

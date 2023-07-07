@@ -19,9 +19,9 @@ const allActions = {
   createPost,
   toggleExpandedPost,
   reactPost,
+  addComment,
   likePostFromSocket,
-  dislikePostFromSocket,
-  addComment
+  dislikePostFromSocket
 };
 
 export { allActions as actions };

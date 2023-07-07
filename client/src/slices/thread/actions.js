@@ -74,7 +74,6 @@ const reactPost = createAsyncThunk(
   ActionType.REACT,
   async ({ postId, reaction }, { getState, extra: { services } }) => {
     const response = await services.post[reaction](postId);
-
     const mapReactions = post => ({
       ...post,
       dislikeCount: Number(response.dislikeCount),
